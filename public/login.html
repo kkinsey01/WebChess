@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Login Page</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <h4>Login Page</h4>
+        <form action="" id="loginForm">
+            <p>Username: </p>
+            <input type="text" id="userName">
+            <p>Password: </p>
+            <input type="password" id="password">
+            <button type="submit" id="submit">Login</button>
+        </form>
+        <h4>Not signed up yet?</h4>
+        <button type="button" id="signupPage">Signup</button>
+        
+        <script async defer>
+            
+            function handleFormSubmission(event) {
+                    event.preventDefault();
+
+                    const username = document.getElementById('userName').value;
+                    const pwd = document.getElementById('password').value;
+
+                    fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, pwd })
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                // check content type
+                                const contentType = response.headers.get('Content-Type');
+                                if (contentType && contentType.includes('application/json')) {
+                                    return response.json(); // Parse response body as JSON
+                                } else if (contentType && contentType.includes('text/html')) {
+                                    return response.text(); // Parse response body as text (HTML)
+                                } else {
+                                    throw new Error('Unsupported content type');
+                                }
+                            }
+                            else {
+                                throw new Error('Response error');
+                            }
+                        })
+                        .then(data => {
+                             if (typeof data === 'object') {
+                                // JSON response
+                                alert(data.msg)
+                            } else { // html file response
+                                document.open();
+                                document.write(data);
+                                document.close();
+                            }
+                        })
+                        .catch(error => {
+                            console.log('There was a problem with the fetch operation', error);
+                        });
+                }
+
+                document.getElementById('loginForm').addEventListener('submit', handleFormSubmission);
+
+                function sendToSignup(event) {
+                    fetch ('/signup', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'text/html'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status: ', response.status);
+                        if (response.ok) {
+                            return response.text();
+                        }
+                        else {
+                            throw new Error('Response error');
+                        }
+                    })
+                    .then(htmlContent => {
+                        document.open();
+                        document.write(htmlContent);
+                        document.close();
+                    })
+                    .catch(error => {
+                        console.log('There was a problem sending to the signup page', error);
+                    })
+                }
+                document.getElementById('signupPage').addEventListener('click', sendToSignup);
+        </script>
+    </body>
+</html>

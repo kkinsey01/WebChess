@@ -1,0 +1,6 @@
+express
+path
+url
+mongoose
+cookie-parser
+jwtwebtoken

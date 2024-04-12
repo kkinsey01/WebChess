@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Signup</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <style>
+            #password {
+                margin-left: 3px;
+            }
+            #confirm {
+                margin-left: 10px;
+            }
+            #submit {
+                margin-top: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <h4>Signup</h4>
+        <form action="" id="signupForm">
+            <span>Username: </span>
+            <input type="text" id="userName"><br>
+            <span>Password: </span>
+            <input type="password" id="password"><br>
+            <span>Confirm: </span>
+            <input type="password" id="confirm"><br>
+            <button type="submit" id="submit">Signup</button>
+        </form>
+        <h4>Already signed up?</h4>
+        <button type="button" id="loginPage">Login</button>
+        <script defer>
+            
+            function handleFormSubmission(event) {
+                event.preventDefault();
+
+                const username = document.getElementById('userName').value;
+                const pwd = document.getElementById('password').value;
+                const pwd_confirm = document.getElementById('confirm').value;
+
+                fetch ('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, pwd, pwd_confirm})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    else {
+                        throw new Error('Response error');
+                    }
+                })
+                .then(data => {
+                    if (data && data.msg) {
+                        alert(data.msg);
+                    }
+                })
+                .catch(error => {
+                    console.log('There was a problem with the fetch operation', error);
+                });
+            }
+
+            document.getElementById('signupForm').addEventListener('submit', handleFormSubmission);
+
+            function sendToLogin(event) {
+                fetch ('/login', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'text/html'
+                    }
+                })
+                .then(response => {
+                    console.log('Response status: ', response.status);
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    else {
+                        throw new Error('Response error');
+                    }
+                })
+                .then(htmlContent => {
+                    document.open();
+                    document.write(htmlContent);
+                    document.close();
+                })
+                .catch(error => {
+                    console.log('There was a problem sending to the login page', error);
+                })
+            }
+            document.getElementById('loginPage').addEventListener('click', sendToLogin);
+        </script>
+    </body>
+</html>
