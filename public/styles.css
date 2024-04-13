@@ -1,6 +1,9 @@
 .square {
     width: auto;
-    aspect-ratio: 1 / 1;
+    height: calc(75vh / 8);
     box-sizing: border-box;
     position: relative;
+}
+#boardContainer {
+    height: 75vh;
 }
