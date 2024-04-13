@@ -4,3 +4,4 @@ url
 mongoose
 cookie-parser
 jwtwebtoken
+tailwind
