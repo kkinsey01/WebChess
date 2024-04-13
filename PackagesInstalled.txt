@@ -3,5 +3,5 @@ path
 url
 mongoose
 cookie-parser
-jwtwebtoken
+jsonwebtoken
 tailwind
