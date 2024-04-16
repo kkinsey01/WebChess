@@ -181,6 +181,29 @@ class Rook extends Piece {
     }
 }
 
+class Bishop extends Piece {
+    constructor(chessboard, color, row, column) 
+    {
+        super('Bishop', color, row, column, chessboard);
+    }
+    getMoves() {
+        let moves = [];
+        let column = this.position.column;
+        let row = this.position.row;
+        const charCode = column.charCodeAt(0);
+        for (let i = row + 1; i <= 8; i++) 
+        {
+            moves.push({ row: row + (i - row), column: String.fromCharCode(charCode + (i - row))});
+            moves.push({ row: row + (i - row), column: String.fromCharCode(charCode - (i - row)) });
+        }
+        for (let i = row - 1; i > 0; i--) 
+        {
+            moves.push( {row: row - (row - i), column: String.fromCharCode(charCode - (row - i))});
+            moves.push({ row: row - (row - i), column: String.fromCharCode(charCode + (row - i)) });
+        }
+        return moves;
+    }
+}
 
 const chessboard = new Chessboard();
 
@@ -197,3 +220,6 @@ const rook1 = new Rook(chessboard, "white", 1, "a");
 chessboard.placePiece(rook1, rook1.getPosition().row, rook1.getPosition().column);
 
 console.log(rook1.getMoves());
+
+const bishop1 = new Bishop(chessboard, "white", 3, "c");
+console.log(bishop1.getMoves());
