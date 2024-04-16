@@ -143,6 +143,45 @@ class King extends Piece {
     }
 }
 
+class Rook extends Piece {
+    constructor(chessboard, color, row, column) {
+        super('Rook', color, row, column, chessboard);
+    }
+    getMoves() {
+        let moves = [];
+        let column = this.position.column;
+        let row = this.position.row;
+        for (let i = row + 1; i <= 8; i++) {
+            moves.push({row: row + (i - row), column: column });
+            moves.push({row: row, column: String.fromCharCode(column.charCodeAt(0) + (i - row)) });
+        }
+        for (let i = row - 1; i > 0; i--) {
+            moves.push({row : row - (row - i), column: column});
+            moves.push({ row: row, column: String.fromCharCode(column.charCodeAt(0) - (row - i)) });
+        }
+        return moves;
+    }
+    move(row, column) {
+        const moves = this.getMoves();
+        const targetMove = { row: row, column: column };
+
+        const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
+        if (isValidMove) {
+            if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
+                console.log("Invalid move");
+            }
+            else {
+                this.setPosition(row, column);
+                console.log("Move successful");
+            }
+        } else {
+            console.log("Invalid move");
+        }
+        return this.position;
+    }
+}
+
+
 const chessboard = new Chessboard();
 
 const king1 = new King(chessboard, "white", 1, "d");
@@ -153,3 +192,8 @@ console.log(king1.move(1, "e"));
 
 const pawn1 = new Pawn(chessboard, "white", 2, "a");
 chessboard.placePiece(pawn1, pawn1.getPosition().row, pawn1.getPosition().column);
+
+const rook1 = new Rook(chessboard, "white", 1, "a");
+chessboard.placePiece(rook1, rook1.getPosition().row, rook1.getPosition().column);
+
+console.log(rook1.getMoves());
