@@ -61,6 +61,27 @@ class Piece {
         };
         this.chessboard.board[row][column] = this;
     }
+    getMoves() {
+        return []; 
+    }
+    move(row, column) {
+        const moves = this.getMoves();
+        const targetMove = { row: row, column: column };
+
+        const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
+        if (isValidMove) {
+            if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
+                console.log("Invalid move");
+            }
+            else {
+                this.setPosition(row, column);
+                console.log("Move successful");
+            }
+        } else {
+            console.log("Invalid move");
+        }
+        return this.position;
+    }
 }
 
 class Pawn extends Piece {
@@ -73,31 +94,6 @@ class Pawn extends Piece {
         } else {
             return [{ row: this.position.row + 1, column: this.position.column }];
         }
-    }
-    move(row, column) {
-        console.log(row, column);
-        if (column != this.position.column) {
-            return null;
-        }
-        if (this.position.row == 2) {
-            if (row == this.position.row + 1 || row == this.position.row + 2) {
-                this.setPosition(row, column);
-            }
-            else {
-                console.log("invalid move for pawn");
-                return null;
-            }
-        }
-        else {
-            if (row == this.position.row + 1) {
-                this.setPosition(row, column);
-            }
-            else {
-                console.log("invalid move for pawn");
-                return null;
-            }
-        }
-        return this.position;
     }
     capture(row, column) {
 
@@ -122,25 +118,6 @@ class King extends Piece {
         moves.push({ row: row - 1, column: String.fromCharCode(column.charCodeAt(0) + 1) });
         return moves;
     }
-    move(row, column) {
-        const moves = this.getMoves();
-        const targetMove = { row: row, column: column };
-
-        const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
-
-        if (isValidMove) {
-            if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
-                console.log("Invalid move");
-            }
-            else {
-                this.setPosition(row, column);
-                console.log("Move successful");
-            }
-        } else {
-            console.log("Invalid move");
-        }
-        return this.position;
-    }
 }
 
 class Rook extends Piece {
@@ -160,24 +137,6 @@ class Rook extends Piece {
             moves.push({ row: row, column: String.fromCharCode(column.charCodeAt(0) - (row - i)) });
         }
         return moves;
-    }
-    move(row, column) {
-        const moves = this.getMoves();
-        const targetMove = { row: row, column: column };
-
-        const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
-        if (isValidMove) {
-            if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
-                console.log("Invalid move");
-            }
-            else {
-                this.setPosition(row, column);
-                console.log("Move successful");
-            }
-        } else {
-            console.log("Invalid move");
-        }
-        return this.position;
     }
 }
 
@@ -205,6 +164,23 @@ class Bishop extends Piece {
     }
 }
 
+class Queen extends Piece {
+    constructor(chessboard, color, row, column) 
+    {
+        super('Queen', color, row, column, chessboard);
+        this.king = new King(chessboard, color, row, column);
+        this.rook = new Rook(chessboard, color, row, column);
+        this.bishop = new Bishop(chessboard, color, row, column);
+    }
+    getMoves() {
+        let kingMoves = this.king.getMoves();
+        let rookMoves = this.rook.getMoves();
+        let bishopMoves = this.rook.getMoves();
+        let moves = [...kingMoves, ...rookMoves, ...bishopMoves];
+        return moves;
+    }
+}
+
 const chessboard = new Chessboard();
 
 const king1 = new King(chessboard, "white", 1, "d");
@@ -223,3 +199,7 @@ console.log(rook1.getMoves());
 
 const bishop1 = new Bishop(chessboard, "white", 3, "c");
 console.log(bishop1.getMoves());
+console.log(bishop1.move(4, "d"));
+
+const queen1 = new Queen(chessboard, "white", 5, "a");
+console.log(queen1.getMoves());
