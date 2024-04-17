@@ -47,6 +47,10 @@ function squareClick(event) {
         let column = squareId.charAt(0);
         let row = parseInt(squareId.charAt(1));
         let oldPosition = activePiece.getPosition();
+        let updatedPosition = activePiece.move(row, column);
+        if (updatedPosition === oldPosition){
+            return;
+        }
         updatePieces(oldPosition, squareId);
         movePiece(oldPosition, squareId);
         activePiece.move(row, column);

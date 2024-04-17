@@ -161,21 +161,32 @@ class Bishop extends Piece {
     }
     getMoves() {
         let moves = [];
-        let column = this.position.column;
+        let column = this.position.column.charCodeAt(0);
         let row = this.position.row;
-        const charCode = column.charCodeAt(0);
-        for (let i = row + 1; i <= 8; i++) 
-        {
-            moves.push({ row: row + (i - row), column: String.fromCharCode(charCode + (i - row))});
-            moves.push({ row: row + (i - row), column: String.fromCharCode(charCode - (i - row)) });
+
+        // Up-right diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row + i, column: String.fromCharCode(column + i) });
         }
-        for (let i = row - 1; i > 0; i--) 
-        {
-            moves.push( {row: row - (row - i), column: String.fromCharCode(charCode - (row - i))});
-            moves.push({ row: row - (row - i), column: String.fromCharCode(charCode + (row - i)) });
+
+        // Up-left diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row + i, column: String.fromCharCode(column - i) });
         }
+
+        // Down-right diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row - i, column: String.fromCharCode(column + i) });
+        }
+
+        // Down-left diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row - i, column: String.fromCharCode(column - i) });
+        }
+
         return moves;
     }
+
 }
 
 class Queen extends Piece {
