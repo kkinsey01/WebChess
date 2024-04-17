@@ -180,6 +180,27 @@ class Queen extends Piece {
         return moves;
     }
 }
+class Knight extends Piece 
+{
+    constructor(chessboard, color, row, column) {
+        super('Knight', color, row, column, chessboard);
+    }
+    getMoves() {
+        let moves = [];
+        let column = this.position.column;
+        let row = this.position.row;
+        const charCode = column.charCodeAt(0);
+        moves.push({ row: row + 2, column: String.fromCharCode(charCode + 1)}); // 2 up, 1 to the right
+        moves.push({ row: row + 2, column: String.fromCharCode(charCode - 1)}); // 2 up, 1 to the left
+        moves.push({ row: row - 2, column: String.fromCharCode(charCode + 1)}); // 2 down, 1 to the right
+        moves.push({ row: row - 2, column: String.fromCharCode(charCode - 1)}); // 2 down, 1 to the left
+        moves.push({ row: row - 1, column: String.fromCharCode(charCode + 2)}); // 2 to the right, 1 down
+        moves.push({ row: row - 1, column: String.fromCharCode(charCode - 2)}); // 2 to the left, 1 down
+        moves.push({ row: row + 1, column: String.fromCharCode(charCode + 2)}); // 2 to the right, 1 up
+        moves.push({ row: row + 1, column: String.fromCharCode(charCode - 2)}); // 2 to the left, 1 up
+        return moves;
+    }
+}
 
 const chessboard = new Chessboard();
 
@@ -203,3 +224,6 @@ console.log(bishop1.move(4, "d"));
 
 const queen1 = new Queen(chessboard, "white", 5, "a");
 console.log(queen1.getMoves());
+
+const knight1 = new Knight(chessboard, "white", 1, "b");
+console.log(knight1.getMoves());
