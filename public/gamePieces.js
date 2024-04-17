@@ -9,6 +9,9 @@ board =
     'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2',
     'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1',
 ]
+
+// HAVE TO CHECK IF PIECE IS BLOCKED TOO!
+
 class Chessboard {
     constructor() {
         this.board = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -49,6 +52,7 @@ class Piece {
         this.chessboard = chessboard;
     }
     getType() { return this.typeName }
+    getColor() { return this.color }
     getPosition() {
         return this.position;
     }
@@ -89,10 +93,20 @@ class Pawn extends Piece {
         super('Pawn', color, row, column, chessboard);
     }
     getMoves() {
-        if (this.position.row === 2) {
-            return [{ row: this.position.row + 1, column: this.position.column }, { row: this.position.row + 2, column: this.position.column }];
-        } else {
-            return [{ row: this.position.row + 1, column: this.position.column }];
+        if (this.getColor() === 'white') 
+        {
+            if (this.position.row === 2) {
+                return [{ row: this.position.row + 1, column: this.position.column }, { row: this.position.row + 2, column: this.position.column }];
+            } else {
+                return [{ row: this.position.row + 1, column: this.position.column }];
+            }
+        }
+        else {
+            if (this.position.row === 2) {
+                return [{ row: this.position.row - 1, column: this.position.column }, { row: this.position.row - 1, column: this.position.column }];
+            } else {
+                return [{ row: this.position.row - 1, column: this.position.column }];
+            }
         }
     }
     capture(row, column) {
