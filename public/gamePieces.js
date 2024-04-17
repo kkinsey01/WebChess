@@ -201,6 +201,9 @@ class Knight extends Piece
         return moves;
     }
 }
+/*
+
+for testing purposes, have to comment out game.js if you want to run 
 
 const chessboard = new Chessboard();
 
@@ -227,3 +230,4 @@ console.log(queen1.getMoves());
 
 const knight1 = new Knight(chessboard, "white", 1, "b");
 console.log(knight1.getMoves());
+*/
