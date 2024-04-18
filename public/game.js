@@ -42,15 +42,22 @@ async function squareClick(event) {
     const square = event.target.closest('.square');
     const squareId = square.id;
     const hasPiece = square.querySelector('.piece') !== null;
-
+    var moves;
     console.log(`Clicked on square ${squareId}`);
     if (activePiece) {
-       await movement(activePiece, squareId);
+        moves = activePiece.getMoves();
+        await movement(activePiece, squareId);
     }
     if (hasPiece) {
-        console.log('Square has a piece');
-        if (activePiece && activePiece.getMoves().includes(squareId)) {
-            capture(squareId);
+        console.log('Square has a piece', squareId);
+        if (activePiece) {
+            for (let move of moves) {
+                let moveString = move.column + move.row.toString();
+                console.log(moveString);
+                if (moveString === squareId) {
+                    capture(squareId);
+                }
+            }
         }
         else {
             activePiece = pieces[squareId];
