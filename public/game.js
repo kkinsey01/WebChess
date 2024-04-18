@@ -47,20 +47,27 @@ function squareClick(event) {
         let column = squareId.charAt(0);
         let row = parseInt(squareId.charAt(1));
         let oldPosition = activePiece.getPosition();
-        let updatedPosition = activePiece.move(row, column);
-        if (updatedPosition === oldPosition){
-            return;
+        var updatedPosition;
+        if (activePiece.move(row, column))
+        {
+            updatedPosition = activePiece.getPosition();
+            console.log(updatedPosition);
+            const obstacles = checkObstacles(oldPosition, updatedPosition);
+            if (updatedPosition === oldPosition || obstacles.length > 0) {
+                console.log('Move failed');
+                return;
+            }
+            updatePieces(oldPosition, squareId);
+            movePiece(oldPosition, squareId);
+            activePiece.move(row, column);
+            console.log(activePiece.getPosition());
+            /*
+            for (const piece in pieces) {
+                console.log(`Key: ${piece}, Piece: ${pieces[piece]}`)
+            }
+            */
+            activePiece = null;
         }
-        updatePieces(oldPosition, squareId);
-        movePiece(oldPosition, squareId);
-        activePiece.move(row, column);
-        console.log(activePiece.getPosition());
-        /*
-        for (const piece in pieces) {
-            console.log(`Key: ${piece}, Piece: ${pieces[piece]}`)
-        }
-        */
-        activePiece = null;
     }
     if (hasPiece) {
         console.log('Square has a piece');
@@ -93,6 +100,26 @@ function movePiece(oldPosition, newPosition) {
     }
 }
 
+function checkObstacles(currentPosition, newPosition) {
+    const obstacles = [];
+
+    const deltaRow = Math.sign(newPosition.row - currentPosition.row);
+    const deltaColumn = Math.sign(newPosition.column.charCodeAt(0) - currentPosition.column.charCodeAt(0));
+
+    for (let row = currentPosition.row + deltaRow, columnCode = currentPosition.column.charCodeAt(0) + deltaColumn;
+        row !== newPosition.row || columnCode !== newPosition.column.charCodeAt(0);
+        row += deltaRow, columnCode += deltaColumn) {
+
+        const column = String.fromCharCode(columnCode);
+        const squareId = column + row;
+
+        if (pieces[squareId]) {
+            obstacles.push(squareId);
+        }
+    }
+
+    return obstacles;
+}
 
 function addEventListeners() {
     const squares = document.querySelectorAll('.square');

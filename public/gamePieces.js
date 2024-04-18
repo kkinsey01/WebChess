@@ -75,16 +75,16 @@ class Piece {
         const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
         if (isValidMove) {
             if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
-                console.log("Invalid move");
+                return false;
             }
             else {
                 this.setPosition(row, column);
                 console.log("Move successful");
             }
         } else {
-            console.log("Invalid move");
+            return false;
         }
-        return this.position;
+        return true;
     }
 }
 
