@@ -14,7 +14,7 @@ board =
 
 class Chessboard {
     constructor() {
-        this.board = Array(8).fill(null).map(() => Array(8).fill(null));
+        this.board = Array(9).fill(null).map(() => Array(9).fill(null));
     }
 
     placePiece(piece, row, column) {
