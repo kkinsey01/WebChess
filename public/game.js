@@ -37,37 +37,14 @@ const pieces = {
 
 let activePiece = null;
 
-function squareClick(event) {
+async function squareClick(event) {
     const square = event.target.closest('.square');
     const squareId = square.id;
     const hasPiece = square.querySelector('.piece') !== null;
 
     console.log(`Clicked on square ${squareId}`);
     if (activePiece) {
-        let column = squareId.charAt(0);
-        let row = parseInt(squareId.charAt(1));
-        let oldPosition = activePiece.getPosition();
-        var updatedPosition;
-        if (activePiece.move(row, column))
-        {
-            updatedPosition = activePiece.getPosition();
-            console.log(updatedPosition);
-            const obstacles = checkObstacles(oldPosition, updatedPosition);
-            if (updatedPosition === oldPosition || obstacles.length > 0) {
-                console.log('Move failed');
-                return;
-            }
-            updatePieces(oldPosition, squareId);
-            movePiece(oldPosition, squareId);
-            activePiece.move(row, column);
-            console.log(activePiece.getPosition());
-            /*
-            for (const piece in pieces) {
-                console.log(`Key: ${piece}, Piece: ${pieces[piece]}`)
-            }
-            */
-            activePiece = null;
-        }
+       await movement(activePiece, squareId);
     }
     if (hasPiece) {
         console.log('Square has a piece');
@@ -76,6 +53,39 @@ function squareClick(event) {
     }
     else {
         console.log('Square does not have a piece');
+        activePiece = null;
+    }
+}
+
+async function movement(activePiece, squareId)
+{
+    let column = squareId.charAt(0);
+    let row = parseInt(squareId.charAt(1));
+    let oldPosition = activePiece.getPosition();
+    var updatedPosition;
+    if (activePiece.move(row, column)) {
+        updatedPosition = activePiece.getPosition();
+        console.log(updatedPosition);
+        // Check if the piece moved to a new position
+        if (!comparePositions(oldPosition, updatedPosition)) {
+            // Check if there are obstacles on the path
+            const obstacles = checkObstacles(oldPosition, updatedPosition, activePiece);
+            if (obstacles.length === 0) {
+                if (pieces[updatedPosition]) {
+                    console.log('Piece exists in location');
+                    capture(updatedPosition);
+                }
+                // Move the piece on the board
+                updatePieces(oldPosition, squareId);
+                movePiece(oldPosition, squareId);
+            } else {
+                console.log(`Move failed due to obstacles.`);
+            }
+            console.log(chessboard);
+            console.log(pieces);
+        } else {
+            console.log(`Move failed. Positions are equal.`);
+        }
         activePiece = null;
     }
 }
@@ -92,17 +102,21 @@ function movePiece(oldPosition, newPosition) {
 
     if (fromSquare && toSquare) {
         const pieceDiv = fromSquare.querySelector('.piece');
-        console.log('pieceDiv:', pieceDiv);
         if (pieceDiv) {
             pieceDiv.parentElement.id = newPosition;
             toSquare.appendChild(pieceDiv);
         }
     }
 }
+function comparePositions(pos1, pos2) {
+    return pos1.row === pos2.row && pos1.column === pos2.column;
+}
+function checkObstacles(currentPosition, newPosition, piece) {
+    let obstacles = [];
 
-function checkObstacles(currentPosition, newPosition) {
-    const obstacles = [];
-
+    if (piece.getType() === 'Knight') {
+        return obstacles;
+    }
     const deltaRow = Math.sign(newPosition.row - currentPosition.row);
     const deltaColumn = Math.sign(newPosition.column.charCodeAt(0) - currentPosition.column.charCodeAt(0));
 
@@ -115,12 +129,22 @@ function checkObstacles(currentPosition, newPosition) {
 
         if (pieces[squareId]) {
             obstacles.push(squareId);
+            break;
         }
     }
 
     return obstacles;
 }
 
+function capture(newPosition) {
+    console.log('capturing!');
+    delete pieces[newPosition];
+    const squareDiv = document.getElementById(newPosition);
+    if (squareDiv.querySelector('.piece'))
+    {
+        squareDiv.remove('.piece');
+    }
+} 
 function addEventListeners() {
     const squares = document.querySelectorAll('.square');
     squares.forEach(square => {

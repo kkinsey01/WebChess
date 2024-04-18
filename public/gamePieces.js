@@ -38,6 +38,15 @@ class Chessboard {
         const columnCharCode = column.charCodeAt(0);
         return row > 0 && row <= 8 && columnCharCode >= 'a'.charCodeAt(0) && columnCharCode <= 'h'.charCodeAt(0);
     }
+    getPiece(row, column) {
+        return this.board[row][column];
+    }
+    capture(row, column) {
+        const pieceElement = document.getElementById(column + row).querySelector('.piece');
+        if (pieceElement) {
+            pieceElement.remove();
+        }
+    }
 }
 
 
@@ -75,6 +84,16 @@ class Piece {
         const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
         if (isValidMove) {
             if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
+                const targetPiece = this.chessboard.getPiece(row, column);
+                console.log(targetPiece);
+                /*
+                if (targetPiece.getColor() !== this.getColor()) {
+                    console.log('Capture!');
+                    this.chessboard.capture(row, column);
+                    this.setPosition(row, column);
+                    return true;
+                }
+                */
                 return false;
             }
             else {
@@ -93,21 +112,32 @@ class Pawn extends Piece {
         super('Pawn', color, row, column, chessboard);
     }
     getMoves() {
-        if (this.getColor() === 'white') 
-        {
-            if (this.position.row === 2) {
-                return [{ row: this.position.row + 1, column: this.position.column }, { row: this.position.row + 2, column: this.position.column }];
+        const moves = [];
+        const currentRow = this.position.row;
+        const currentColumn = this.position.column;
+
+        if (this.getColor() === 'white') {
+            // White pawns move forward (row + 1)
+            if (currentRow === 2) {
+                // If pawn is on the second row, it can move one or two squares forward
+                moves.push({ row: currentRow + 1, column: currentColumn });
+                moves.push({ row: currentRow + 2, column: currentColumn });
             } else {
-                return [{ row: this.position.row + 1, column: this.position.column }];
+                // Otherwise, it can only move one square forward
+                moves.push({ row: currentRow + 1, column: currentColumn });
+            }
+        } else {
+            // Black pawns move forward (row - 1)
+            if (currentRow === 7) {
+                // If pawn is on the seventh row, it can move one or two squares forward
+                moves.push({ row: currentRow - 1, column: currentColumn });
+                moves.push({ row: currentRow - 2, column: currentColumn });
+            } else {
+                // Otherwise, it can only move one square forward
+                moves.push({ row: currentRow - 1, column: currentColumn });
             }
         }
-        else {
-            if (this.position.row === 2) {
-                return [{ row: this.position.row - 1, column: this.position.column }, { row: this.position.row - 1, column: this.position.column }];
-            } else {
-                return [{ row: this.position.row - 1, column: this.position.column }];
-            }
-        }
+        return moves;
     }
     capture(row, column) {
 
