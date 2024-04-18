@@ -36,6 +36,7 @@ const pieces = {
 }
 
 let activePiece = null;
+let whiteTurn = true;
 
 async function squareClick(event) {
     const square = event.target.closest('.square');
@@ -48,8 +49,13 @@ async function squareClick(event) {
     }
     if (hasPiece) {
         console.log('Square has a piece');
-        activePiece = pieces[squareId];
-        console.log(activePiece.getType());
+        if (activePiece && activePiece.getMoves().includes(squareId)) {
+            capture(squareId);
+        }
+        else {
+            activePiece = pieces[squareId];
+            console.log(activePiece.getType());
+        }
     }
     else {
         console.log('Square does not have a piece');
@@ -65,7 +71,6 @@ async function movement(activePiece, squareId)
     var updatedPosition;
     if (activePiece.move(row, column)) {
         updatedPosition = activePiece.getPosition();
-        console.log(updatedPosition);
         // Check if the piece moved to a new position
         if (!comparePositions(oldPosition, updatedPosition)) {
             // Check if there are obstacles on the path
@@ -73,7 +78,7 @@ async function movement(activePiece, squareId)
             if (obstacles.length === 0) {
                 if (pieces[updatedPosition]) {
                     console.log('Piece exists in location');
-                    capture(updatedPosition);
+                    await capture(updatedPosition);
                 }
                 // Move the piece on the board
                 updatePieces(oldPosition, squareId);
@@ -98,12 +103,10 @@ function updatePieces(oldPosition, newPosition) {
 function movePiece(oldPosition, newPosition) {
     const fromSquare = document.getElementById(oldPosition.column + oldPosition.row);
     const toSquare = document.getElementById(newPosition);
-    
 
     if (fromSquare && toSquare) {
         const pieceDiv = fromSquare.querySelector('.piece');
         if (pieceDiv) {
-            pieceDiv.parentElement.id = newPosition;
             toSquare.appendChild(pieceDiv);
         }
     }
@@ -136,13 +139,16 @@ function checkObstacles(currentPosition, newPosition, piece) {
     return obstacles;
 }
 
-function capture(newPosition) {
+async function capture(newPosition) {
     console.log('capturing!');
     delete pieces[newPosition];
     const squareDiv = document.getElementById(newPosition);
-    if (squareDiv.querySelector('.piece'))
+    console.log('squarediv', squareDiv);
+    const pieceDiv = squareDiv.querySelector('.piece');
+    console.log('piece div', pieceDiv);
+    if (pieceDiv)
     {
-        squareDiv.remove('.piece');
+        pieceDiv.remove();
     }
 } 
 function addEventListeners() {

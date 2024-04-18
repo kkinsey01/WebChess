@@ -223,15 +223,13 @@ class Queen extends Piece {
     constructor(chessboard, color, row, column) 
     {
         super('Queen', color, row, column, chessboard);
-        this.king = new King(chessboard, color, row, column);
         this.rook = new Rook(chessboard, color, row, column);
         this.bishop = new Bishop(chessboard, color, row, column);
     }
     getMoves() {
-        let kingMoves = this.king.getMoves();
         let rookMoves = this.rook.getMoves();
-        let bishopMoves = this.rook.getMoves();
-        let moves = [...kingMoves, ...rookMoves, ...bishopMoves];
+        let bishopMoves = this.bishop.getMoves();
+        let moves = [...rookMoves, ...bishopMoves];
         return moves;
     }
 }
