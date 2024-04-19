@@ -81,7 +81,6 @@ async function movement(activePiece, squareId) {
     var updatedPosition;
     if (activePiece.move(row, column)) { // WHEN CAPTURING, KNIGHT NEVER GOES INTO THIS IF
         updatedPosition = activePiece.getPosition();
-        console.log(activePiece.getType() + ' moved to ' + updatedPosition.column + ' ' + updatedPosition.row);
         // Check if the piece moved to a new position
         if (!comparePositions(oldPosition, updatedPosition)) {
             // Check if there are obstacles on the path

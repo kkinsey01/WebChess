@@ -87,6 +87,7 @@ class Piece {
                 const targetPiece = this.chessboard.getPiece(row, column);
                 console.log(targetPiece);
                 if (targetPiece.getColor() !== this.getColor()){
+                    this.setPosition(row, column);
                     return true;
                 }
                 /*
