@@ -52,6 +52,7 @@ async function squareClick(event) {
                 let moveString = move.column + move.row.toString();
                 console.log(moveString);
                 if (moveString === squareId) {
+                    if (activePiece.getColor() !== pieces[squareId].getColor())
                     await capture(squareId);
                     break;
                 }
