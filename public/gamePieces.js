@@ -86,6 +86,9 @@ class Piece {
             if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
                 const targetPiece = this.chessboard.getPiece(row, column);
                 console.log(targetPiece);
+                if (targetPiece.getColor() !== this.getColor()){
+                    return true;
+                }
                 /*
                 if (targetPiece.getColor() !== this.getColor()) {
                     console.log('Capture!');

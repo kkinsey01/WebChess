@@ -43,50 +43,51 @@ async function squareClick(event) {
     const squareId = square.id;
     const hasPiece = square.querySelector('.piece') !== null;
     var moves;
-    console.log(`Clicked on square ${squareId}`);
     if (activePiece) {
         moves = activePiece.getMoves();
-        await movement(activePiece, squareId);
-    }
-    if (hasPiece) {
-        console.log('Square has a piece', squareId);
-        if (activePiece) {
-            for (let move of moves) {
+        if (hasPiece) 
+        {
+            for (let move of moves) 
+            {
                 let moveString = move.column + move.row.toString();
                 console.log(moveString);
                 if (moveString === squareId) {
-                    capture(squareId);
+                    await capture(squareId);
+                    break;
                 }
             }
         }
-        else {
-            activePiece = pieces[squareId];
-            console.log(activePiece.getType());
+        await movement(activePiece, squareId);
+        if (hasPiece) {
+            console.log(pieces);
         }
-    }
-    else {
-        console.log('Square does not have a piece');
         activePiece = null;
     }
+    else {
+        if (hasPiece) {
+            activePiece = pieces[squareId];
+        }
+        else {
+            console.log('Square does not have a piece');
+            activePiece = null;
+        }
+    }     
 }
 
-async function movement(activePiece, squareId)
-{
+async function movement(activePiece, squareId) {
     let column = squareId.charAt(0);
     let row = parseInt(squareId.charAt(1));
     let oldPosition = activePiece.getPosition();
     var updatedPosition;
-    if (activePiece.move(row, column)) {
+    if (activePiece.move(row, column)) { // WHEN CAPTURING, KNIGHT NEVER GOES INTO THIS IF
         updatedPosition = activePiece.getPosition();
+        console.log(activePiece.getType() + ' moved to ' + updatedPosition.column + ' ' + updatedPosition.row);
         // Check if the piece moved to a new position
         if (!comparePositions(oldPosition, updatedPosition)) {
             // Check if there are obstacles on the path
             const obstacles = checkObstacles(oldPosition, updatedPosition, activePiece);
             if (obstacles.length === 0) {
-                if (pieces[updatedPosition]) {
-                    console.log('Piece exists in location');
-                    await capture(updatedPosition);
-                }
+                console.log('No obstacles');
                 // Move the piece on the board
                 updatePieces(oldPosition, squareId);
                 movePiece(oldPosition, squareId);
@@ -150,14 +151,11 @@ async function capture(newPosition) {
     console.log('capturing!');
     delete pieces[newPosition];
     const squareDiv = document.getElementById(newPosition);
-    console.log('squarediv', squareDiv);
     const pieceDiv = squareDiv.querySelector('.piece');
-    console.log('piece div', pieceDiv);
-    if (pieceDiv)
-    {
+    if (pieceDiv) {
         pieceDiv.remove();
     }
-} 
+}
 function addEventListeners() {
     const squares = document.querySelectorAll('.square');
     squares.forEach(square => {
