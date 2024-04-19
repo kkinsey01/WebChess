@@ -37,11 +37,15 @@ const pieces = {
 
 let activePiece = null;
 let whiteTurn = true;
+let lastSquare = null;
+let color = null;
 
 async function squareClick(event) {
     const square = event.target.closest('.square');
     const squareId = square.id;
     const hasPiece = square.querySelector('.piece') !== null;
+    const classes = square.classList;
+    var classesArray = Array.from(classes);
     var moves;
     if (activePiece) {
         moves = activePiece.getMoves();
@@ -53,7 +57,7 @@ async function squareClick(event) {
                 console.log(moveString);
                 if (moveString === squareId) {
                     if (activePiece.getColor() !== pieces[squareId].getColor())
-                    await capture(squareId);
+                        await capture(squareId);
                     break;
                 }
             }
@@ -63,10 +67,19 @@ async function squareClick(event) {
             console.log(pieces);
         }
         activePiece = null;
+        classesArray.splice(1, 1);
+        classesArray.splice(1, 0, color);
+        lastSquare.className = classesArray.join(" ");
+        console.log(square.classList);
     }
     else {
         if (hasPiece) {
             activePiece = pieces[squareId];
+            color = square.classList.item(1);
+            var removedClass = classesArray.splice(1, 1);
+            classesArray.splice(1, 0, "bg-yellow-200");
+            square.className = classesArray.join(" ");
+            lastSquare = square;
         }
         else {
             console.log('Square does not have a piece');
