@@ -64,6 +64,7 @@ async function squareClick(event) {
                 }
             }
         }
+        console.log(activePiece.getType() + " all moves: ", activePiece.getMoves());
         await movement(activePiece, squareId);
         console.log(chessboard.kings);
         if (activePiece.getColor() === 'white')
@@ -109,7 +110,7 @@ async function movement(activePiece, squareId) {
     let row = parseInt(squareId.charAt(1));
     let oldPosition = activePiece.getPosition();
     var updatedPosition;
-    if (activePiece.move(row, column)) { // WHEN CAPTURING, KNIGHT NEVER GOES INTO THIS IF
+    if (activePiece.move(row, column)) { 
         updatedPosition = activePiece.getPosition();
         // Check if the piece moved to a new position
         if (!comparePositions(oldPosition, updatedPosition)) {

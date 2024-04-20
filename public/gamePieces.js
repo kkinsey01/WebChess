@@ -108,14 +108,6 @@ class Piece {
                     this.setPosition(row, column);
                     return true;
                 }
-                /*
-                if (targetPiece.getColor() !== this.getColor()) {
-                    console.log('Capture!');
-                    this.chessboard.capture(row, column);
-                    this.setPosition(row, column);
-                    return true;
-                }
-                */
                 return false;
             }
             else {
@@ -137,6 +129,7 @@ class Pawn extends Piece {
         const moves = [];
         const currentRow = this.position.row;
         const currentColumn = this.position.column;
+        const columnCode = currentColumn.charCodeAt(0);
 
         if (this.getColor() === 'white') {
             // White pawns move forward (row + 1)
@@ -148,6 +141,14 @@ class Pawn extends Piece {
                 // Otherwise, it can only move one square forward
                 moves.push({ row: currentRow + 1, column: currentColumn });
             }
+            if (this.chessboard.isOccupied(currentRow + 1, String.fromCharCode(columnCode - 1)))
+            {
+                moves.push({ row: currentRow + 1, column: String.fromCharCode(columnCode - 1)});
+            }
+            else if (this.chessboard.isOccupied(currentRow + 1, String.fromCharCode(columnCode + 1)))
+            {
+                moves.push({row: currentRow + 1, column: String.fromCharCode(columnCode + 1)});
+            }
         } else {
             // Black pawns move forward (row - 1)
             if (currentRow === 7) {
@@ -158,11 +159,14 @@ class Pawn extends Piece {
                 // Otherwise, it can only move one square forward
                 moves.push({ row: currentRow - 1, column: currentColumn });
             }
+            if (this.chessboard.isOccupied(currentRow - 1, String.fromCharCode(columnCode - 1))) {
+                moves.push({ row: currentRow - 1, column: String.fromCharCode(columnCode - 1) });
+            }
+            else if (this.chessboard.isOccupied(currentRow - 1, String.fromCharCode(columnCode + 1))) {
+                moves.push({ row: currentRow - 1, column: String.fromCharCode(columnCode + 1) });
+            }
         }
         return moves;
-    }
-    capture(row, column) {
-
     }
 }
 
@@ -219,6 +223,49 @@ class King extends Piece {
         // Check diagonal
         if (checkDirection(1, 1) || checkDirection(-1, 1) || checkDirection(1, -1) || checkDirection(-1, -1)) return true;
 
+        let col = startingColumn.charCodeAt(0);
+        const knightThreats = [
+            { row: startingRow - 2, column: String.fromCharCode(col - 1)},
+            { row: startingRow - 2, column: String.fromCharCode(col + 1)},
+            { row: startingRow - 1, column: String.fromCharCode(col - 2) },
+            { row: startingRow - 1, column: String.fromCharCode(col + 2) },
+            { row: startingRow + 1, column: String.fromCharCode(col - 2) },
+            { row: startingRow + 1, column: String.fromCharCode(col + 2) },
+            { row: startingRow + 2, column: String.fromCharCode(col - 1) },
+            { row: startingRow + 2, column: String.fromCharCode(col + 1) }
+        ];
+        for (const threat of knightThreats) {
+            if (threat.row >= 1 && threat.row <= 8 && threat.column >= 'a' && threat.column <= 'h') {
+                const piece = this.chessboard.getPiece(threat.row, threat.column);
+                if (piece && piece.getColor() !== this.getColor() && piece.getType() === "Knight") {
+                    return true;
+                }
+            }
+        }
+        let pawnThreats = [];
+        if (this.getColor() === 'white')
+        {
+            pawnThreats = [
+                { row: startingRow + 1, column: String.fromCharCode(col - 1)},
+                { row: startingRow + 1, column: String.fromCharCode(col + 1)}
+            ];
+        }
+        else {
+            pawnThreats = [
+                { row: startingRow - 1, column: String.fromCharCode(col - 1)},
+                { row: startingRow - 1, column: String.fromCharCode(col + 1)}
+            ];
+        }
+        for (const threat of pawnThreats) {
+            if (threat.row >= 1 && threat.row <= 8 && threat.column >= 'a' && threat.column <= 'h')
+            {
+                const piece = this.chessboard.getPiece(threat.row, threat.column);
+                if (piece && piece.getColor() !== this.getColor() && piece.getType() === "Pawn")
+                {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 }
