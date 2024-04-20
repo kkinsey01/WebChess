@@ -232,13 +232,18 @@ class Rook extends Piece {
         let column = this.position.column;
         let row = this.position.row;
         for (let i = row + 1; i <= 8; i++) {
-            moves.push({row: row + (i - row), column: column });
-            moves.push({row: row, column: String.fromCharCode(column.charCodeAt(0) + (i - row)) });
+            moves.push({ row: i, column: column });
         }
-        for (let i = row - 1; i > 0; i--) {
-            moves.push({row : row - (row - i), column: column});
-            moves.push({ row: row, column: String.fromCharCode(column.charCodeAt(0) - (row - i)) });
+        for (let i = row - 1; i >= 1; i--) {
+            moves.push({ row: i, column: column });
         }
+        for (let charCode = column.charCodeAt(0) + 1; charCode <= 104; charCode++) {
+            moves.push({ row: row, column: String.fromCharCode(charCode) });
+        }
+        for (let charCode = column.charCodeAt(0) - 1; charCode >= 97; charCode--) {
+            moves.push({ row: row, column: String.fromCharCode(charCode) });
+        }
+        console.log(moves);
         return moves;
     }
 }
