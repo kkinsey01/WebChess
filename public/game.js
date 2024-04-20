@@ -34,6 +34,8 @@ const pieces = {
     "g8": new Knight(chessboard, "black", 8, "g"),
     "h8": new Rook(chessboard, "black", 8, "h")
 }
+chessboard.setKing(pieces['d1']);
+chessboard.setKing(pieces['e8']);
 
 let activePiece = null;
 let whiteTurn = true;
@@ -63,6 +65,20 @@ async function squareClick(event) {
             }
         }
         await movement(activePiece, squareId);
+        console.log(chessboard.kings);
+        if (activePiece.getColor() === 'white')
+        {
+            if (chessboard.kings.black.isChecked()) 
+            {
+                alert('Black King is in check!');
+            }
+        }
+        else {
+            if (chessboard.kings.white.isChecked())
+            {
+                alert('White King is in check!');
+            }
+        }
         if (hasPiece) {
             console.log(pieces);
         }

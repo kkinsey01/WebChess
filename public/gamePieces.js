@@ -10,17 +10,22 @@ board =
     'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1',
 ]
 
-// HAVE TO CHECK IF PIECE IS BLOCKED TOO!
-
 class Chessboard {
     constructor() {
         this.board = Array(9).fill(null).map(() => Array(9).fill(null));
+        this.kings = {
+            white: null,
+            black: null
+        };
     }
-
     placePiece(piece, row, column) {
         if (this.isValidPosition(row, column)) {
             this.board[row][column] = piece;
             piece.setPosition(row, column);
+            if (piece.getType() === 'King')
+            {
+                this.kings[piece.getColor()] = piece;
+            }
             return true;
         } else {
             console.log('Invalid position');
@@ -47,6 +52,18 @@ class Chessboard {
             pieceElement.remove();
         }
     }
+    getKing(color) {
+        return this.kings[color];
+    }
+    setKing(piece) {
+        if (piece.getColor() === 'black')
+        {
+            this.kings.black = piece;
+        }
+        else {
+            this.kings.white = piece;
+        }
+    }
 }
 
 
@@ -59,6 +76,7 @@ class Piece {
             column: column
         };
         this.chessboard = chessboard;
+        this.chessboard.board[row][column] = this;
     }
     getType() { return this.typeName }
     getColor() { return this.color }
@@ -165,6 +183,43 @@ class King extends Piece {
         moves.push({ row: row - 1, column: String.fromCharCode(column.charCodeAt(0) - 1) });
         moves.push({ row: row - 1, column: String.fromCharCode(column.charCodeAt(0) + 1) });
         return moves;
+    }
+    isChecked() {
+        const startingPosition = this.position;
+        const aCharcode = 'a'.charCodeAt(0);
+        const startingColumn = startingPosition.column;
+        const startingRow = startingPosition.row;
+        const horizontalPieces = ['Rook', 'Queen'];
+        const diagonalPieces = ['Bishop', 'Queen'];
+        const checkDirection = (deltaRow, deltaCol) => {
+            let row = startingRow + deltaRow;
+            let col = startingColumn.charCodeAt(0) + deltaCol;
+            while (row >= 1 && row <= 8 && col >= 97 && col <= 104) {
+                if (this.chessboard.isOccupied(row, String.fromCharCode(col))) {
+                    const piece = this.chessboard.getPiece(row, String.fromCharCode(col));
+                    if (piece.getColor() !== this.getColor()) {
+                        if (horizontalPieces.includes(piece.getType()) || diagonalPieces.includes(piece.getType())) {
+                            return true;
+                        }
+                    }
+                    break;
+                }
+                row += deltaRow;
+                col += deltaCol;
+            }
+            return false;
+        };
+
+        // Check horizontal
+        if (checkDirection(0, 1) || checkDirection(0, -1)) return true;
+
+        // Check vertical
+        if (checkDirection(1, 0) || checkDirection(-1, 0)) return true;
+
+        // Check diagonal
+        if (checkDirection(1, 1) || checkDirection(-1, 1) || checkDirection(1, -1) || checkDirection(-1, -1)) return true;
+
+        return false;
     }
 }
 
