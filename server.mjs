@@ -5,6 +5,10 @@ import mongoose from 'mongoose'
 import crypto from 'node:crypto'
 import jwt from 'jsonwebtoken'
 import cookieParser from 'cookie-parser'
+import WebSocket, { WebSocketServer } from 'ws'
+import ChessGame from './public/chessGame.mjs'
+import http from 'http'
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,8 +87,13 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/login.html'));
 })
 
+app.get('/landing', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/login.html'));
+})
+
 app.post('/login', function (req, res, next) {
 
+    console.log("in server login post");
     const {username, pwd} = req.body;
     model.find({ username: username}).then(data => {
         if (data.length === 0) {
@@ -106,8 +115,7 @@ app.post('/login', function (req, res, next) {
 
                 res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true});
                 console.log('set cookie');
-
-                res.redirect('/secure');
+                res.sendFile(path.join(__dirname , 'public/landing.html'));
             }
         }
     })
@@ -140,3 +148,44 @@ app.listen(port, () => {
     console.log(`Server listening on port ${port}`)
 })
 
+//----------------------------------------------------------------------------------
+
+// let opengames = [];
+// const allgames = [];
+
+// const server = http.createServer(app);
+// const wss = new WebSocketServer({server});
+
+// // WebSocket connection handling
+// wss.on('connection', function connection(ws) {
+//     console.log('Client connected to sock');
+//     if(opengames.length > 0)
+//     {
+//         opengames[0].players[1] = ws;
+//         ws.send(opengames[0].gameId);
+//         opengames.shift();
+//     }
+//     else
+//     {
+//         game = new ChessGame();
+//         game.players.push(ws);
+//         opengames.push(game);
+//         allgames.push(game);
+//         ws.send('GID ' + game.gameId)
+//     }
+
+
+
+    
+//     // Handle incoming moves from client
+//     ws.on('message', function incoming(message) {
+        
+//         //send move to other opponent client
+        
+//     });
+
+  
+//     ws.on('close', function() {
+//         console.log('Client disconnected');
+//     });
+// });

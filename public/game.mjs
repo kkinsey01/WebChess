@@ -1,3 +1,7 @@
+// import WebSocketServer from 'ws'
+// const socket = new WebSocket('ws://localhost:3000');
+console.log('socketup');
+
 const chessboard = new Chessboard();
 
 const pieces = {
