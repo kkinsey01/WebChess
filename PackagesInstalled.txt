@@ -5,3 +5,5 @@ mongoose
 cookie-parser
 jsonwebtoken
 tailwind
+ws
+http

@@ -76,7 +76,7 @@ app.post('/signup', async (req, res) => {
         await newUser.save();
 
         console.log('Document inserted successfully');
-        return res.status(200).send({ msg: 'Successfully created account.' });
+        return res.status(200).send({ redirect: '/login' });
     } catch (err) {
         console.log('Error: ', err);
         return res.status(500).send({ msg: 'Internal Server Error' });
