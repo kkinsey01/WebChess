@@ -61,6 +61,15 @@ let whiteTurn = true;
 let lastSquare = null;
 let color = null;
 
+let moveClassContainer = document.createElement('div');
+moveClassContainer.className = "move w-1/4 h-1/4 rounded-full bg-gray-500";
+
+let captureClassContainer = document.createElement('div');
+captureClassContainer.className = "capture absolute inset-0 flex justify-center items-center";
+let captureClassInnerDiv = document.createElement('div');
+captureClassInnerDiv.className = "w-4/5 h-4/5 rounded-full border-8 border-gray-400";
+captureClassContainer.appendChild(captureClassInnerDiv);
+
 async function squareClick(event) {
     const square = event.target.closest('.square');
     const squareId = square.id;
@@ -72,6 +81,10 @@ async function squareClick(event) {
         moves = activePiece.getMoves();
         if (hasPiece) 
         {
+            if (activePiece.getColor() === pieces[squareId].getColor()) // MAYBE COME BACK TO THIS
+            {
+                activePiece = pieces[squareId];
+            }
             for (let move of moves) 
             {
                 let moveString = move.column + move.row.toString();
@@ -85,6 +98,7 @@ async function squareClick(event) {
         }
         console.log(activePiece.getType() + " all moves: ", activePiece.getMoves());
         await movement(activePiece, squareId);
+        removeShowMoves();
         console.log(chessboard.kings);
         if (activePiece.getColor() === 'white')
         {
@@ -111,6 +125,7 @@ async function squareClick(event) {
     else {
         if (hasPiece) {
             activePiece = pieces[squareId];
+            showMoves(activePiece);
             color = square.classList.item(1);
             var removedClass = classesArray.splice(1, 1);
             classesArray.splice(1, 0, "bg-yellow-200");
@@ -205,6 +220,79 @@ async function capture(newPosition) {
         pieceDiv.remove();
     }
 }
+
+let alteredDivs = [];
+async function showMoves(piece) {
+    let moves = piece.getMoves();
+    let squareDiv = "";
+    let pieceDiv = "";
+    let movePosition = {
+        row: 0,
+        column: 'a'
+    };
+    for (let move of moves) 
+    {
+        movePosition = {
+            row: move.row,
+            column: move.column
+        }
+        let squareDiv = document.getElementById(movePosition.column + movePosition.row);
+        let obstacles = checkObstacles(piece.getPosition(), movePosition, piece);
+        if (obstacles.length > 0)
+        {
+            console.log('Obstacles!');
+        }
+        else {
+            if (squareDiv) {
+                alteredDivs.push(squareDiv);
+                pieceDiv = squareDiv.querySelector('.piece');
+                console.log('square div', squareDiv);
+                console.log('piece div', pieceDiv);
+                if (pieceDiv) 
+                {
+                    if (piece.getColor() === 'white')
+                    {
+                        colorDiv = pieceDiv.querySelector('.black');
+                        if (colorDiv) 
+                        {
+                            console.log('Capture move');
+                            squareDiv.appendChild(captureClassContainer.cloneNode(true));
+                        }
+                    }
+                    else {
+                        colorDiv = pieceDiv.querySelector('.white');
+                        if (colorDiv)
+                        {
+                            squareDiv.appendChild(captureClassContainer.cloneNode(true));
+                        }
+                    }
+                }
+                else {
+                    console.log('Show move');
+                    squareDiv.appendChild(moveClassContainer.cloneNode(true));
+                } 
+                pieceDiv = "";
+            }
+        }
+    }
+}
+
+async function removeShowMoves() {
+    for (let div of alteredDivs)
+    {
+        const captureDiv = div.querySelector('.capture');
+        if (captureDiv) 
+        {
+            captureDiv.remove();
+        }
+        const move = div.querySelector('.move');
+        if (move) {
+            move.remove();
+        }
+    }
+    alteredDivs = [];
+}
+
 function addEventListeners() {
     const squares = document.querySelectorAll('.square');
     squares.forEach(square => {
