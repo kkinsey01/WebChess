@@ -154,7 +154,7 @@ class Pawn extends Piece {
             {
                 moves.push({ row: currentRow + 1, column: String.fromCharCode(columnCode - 1)});
             }
-            else if (this.chessboard.isOccupied(currentRow + 1, String.fromCharCode(columnCode + 1)))
+            if (this.chessboard.isOccupied(currentRow + 1, String.fromCharCode(columnCode + 1)))
             {
                 moves.push({row: currentRow + 1, column: String.fromCharCode(columnCode + 1)});
             }
