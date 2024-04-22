@@ -1,6 +1,21 @@
-// import WebSocketServer from 'ws'
-// const socket = new WebSocket('ws://localhost:3000');
-console.log('socketup');
+fetch('/port')
+    .then(response => response.json())
+    .then(data => {
+        const port = data.port;
+        const socket = new WebSocket(`ws://localhost:${port}`);
+        // Now you can use the WebSocket connection
+        socket.onopen = function(e) 
+        {
+            console.log('connected!!');
+        }
+        socket.onmessage = (event) =>
+        {
+            if(typeof event.data === 'string')
+            {
+                console.log(event.data);
+            }
+        }
+    });
 
 const chessboard = new Chessboard();
 

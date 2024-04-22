@@ -83,8 +83,14 @@ app.post('/signup', async (req, res) => {
     }
 })
 
+
+app.get('/port', (req, res) => {
+    res.json({ port: server.address().port });
+});
+
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/login.html'));
+    console.log(wss.address());
 })
 
 app.get('/landing', (req, res) => {
@@ -145,47 +151,51 @@ app.get('/secure', authenticate, (req, res, next) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server listening on port ${port}`)
-})
+    console.log(`Express server listening on port ${port}`);
+    
+});
+
 
 //----------------------------------------------------------------------------------
 
-// let opengames = [];
-// const allgames = [];
+let opengames = [];
+const allgames = [];
 
-// const server = http.createServer(app);
-// const wss = new WebSocketServer({server});
+const server = http.createServer(app);
+server.listen();
+const wss = new WebSocketServer({server});
 
-// // WebSocket connection handling
-// wss.on('connection', function connection(ws) {
-//     console.log('Client connected to sock');
-//     if(opengames.length > 0)
-//     {
-//         opengames[0].players[1] = ws;
-//         ws.send(opengames[0].gameId);
-//         opengames.shift();
-//     }
-//     else
-//     {
-//         game = new ChessGame();
-//         game.players.push(ws);
-//         opengames.push(game);
-//         allgames.push(game);
-//         ws.send('GID ' + game.gameId)
-//     }
+console.log('server sock up');
+
+// WebSocket connection handling
+wss.on('connection', function connection(ws) {
+    if(opengames.length > 0)
+    {
+        opengames[0].players[1] = ws;
+        ws.send(opengames[0].gameId);
+        opengames.shift();
+    }
+    else
+    {
+        const game = new ChessGame();
+        game.players.push(ws);
+        opengames.push(game);
+        allgames.push(game);
+        ws.send('GID: ' + game.gameId)
+    }
 
 
 
     
-//     // Handle incoming moves from client
-//     ws.on('message', function incoming(message) {
+    // Handle incoming moves from client
+    ws.on('message', function incoming(message) {
         
-//         //send move to other opponent client
-        
-//     });
+        //send move to other opponent client
+        allgames.findOne(gameId)
+    });
 
   
-//     ws.on('close', function() {
-//         console.log('Client disconnected');
-//     });
-// });
+    ws.on('close', function() {
+        console.log('Client disconnected');
+    });
+});
