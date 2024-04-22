@@ -135,11 +135,20 @@ class Pawn extends Piece {
             // White pawns move forward (row + 1)
             if (currentRow === 2) {
                 // If pawn is on the second row, it can move one or two squares forward
-                moves.push({ row: currentRow + 1, column: currentColumn });
-                moves.push({ row: currentRow + 2, column: currentColumn });
+                if (!this.chessboard.isOccupied(currentRow + 1, currentColumn))
+                {
+                    moves.push({ row: currentRow + 1, column: currentColumn });
+                    if (!this.chessboard.isOccupied(currentRow + 2, currentColumn))
+                    {
+                        moves.push({ row: currentRow + 2, column: currentColumn });
+                    }
+                }
             } else {
                 // Otherwise, it can only move one square forward
-                moves.push({ row: currentRow + 1, column: currentColumn });
+                if (!this.chessboard.isOccupied(currentRow + 1, currentColumn))
+                {
+                    moves.push({ row: currentRow + 1, column: currentColumn });
+                }
             }
             if (this.chessboard.isOccupied(currentRow + 1, String.fromCharCode(columnCode - 1)))
             {
@@ -153,11 +162,17 @@ class Pawn extends Piece {
             // Black pawns move forward (row - 1)
             if (currentRow === 7) {
                 // If pawn is on the seventh row, it can move one or two squares forward
-                moves.push({ row: currentRow - 1, column: currentColumn });
-                moves.push({ row: currentRow - 2, column: currentColumn });
+                if (!this.chessboard.isOccupied(currentRow - 1, currentColumn)) {
+                    moves.push({ row: currentRow - 1, column: currentColumn });
+                    if (!this.chessboard.isOccupied(currentRow - 2, currentColumn)) {
+                        moves.push({ row: currentRow - 2, column: currentColumn });
+                    }
+                }
             } else {
                 // Otherwise, it can only move one square forward
-                moves.push({ row: currentRow - 1, column: currentColumn });
+                if (!this.chessboard.isOccupied(currentRow - 1, currentColumn)) {
+                    moves.push({ row: currentRow - 1, column: currentColumn });
+                }
             }
             if (this.chessboard.isOccupied(currentRow - 1, String.fromCharCode(columnCode - 1))) {
                 moves.push({ row: currentRow - 1, column: String.fromCharCode(columnCode - 1) });
@@ -396,33 +411,3 @@ class Knight extends Piece
         return moves;
     }
 }
-/*
-
-for testing purposes, have to comment out game.js if you want to run 
-
-const chessboard = new Chessboard();
-
-const king1 = new King(chessboard, "white", 1, "d");
-chessboard.placePiece(king1, king1.getPosition().row, king1.getPosition().column);
-
-console.log(king1.getMoves());
-console.log(king1.move(1, "e"));
-
-const pawn1 = new Pawn(chessboard, "white", 2, "a");
-chessboard.placePiece(pawn1, pawn1.getPosition().row, pawn1.getPosition().column);
-
-const rook1 = new Rook(chessboard, "white", 1, "a");
-chessboard.placePiece(rook1, rook1.getPosition().row, rook1.getPosition().column);
-
-console.log(rook1.getMoves());
-
-const bishop1 = new Bishop(chessboard, "white", 3, "c");
-console.log(bishop1.getMoves());
-console.log(bishop1.move(4, "d"));
-
-const queen1 = new Queen(chessboard, "white", 5, "a");
-console.log(queen1.getMoves());
-
-const knight1 = new Knight(chessboard, "white", 1, "b");
-console.log(knight1.getMoves());
-*/
