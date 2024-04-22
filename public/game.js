@@ -262,7 +262,7 @@ function checkObstacles(currentPosition, newPosition, piece) {
 
 async function capture(newPosition) {
     console.log('capturing!');
-    delete pieces[newPosition];
+    pieces[newPosition] = null;
     const squareDiv = document.getElementById(newPosition);
     const pieceDiv = squareDiv.querySelector('.piece');
     if (pieceDiv) {
