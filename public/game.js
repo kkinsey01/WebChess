@@ -1,8 +1,11 @@
+let gameId = 0;
+let socket;
+let mymove = true;
 fetch('/port')
     .then(response => response.json())
     .then(data => {
         const port = data.port;
-        const socket = new WebSocket(`ws://localhost:${port}`);
+        socket = new WebSocket(`ws://localhost:${port}`);
         // Now you can use the WebSocket connection
         socket.onopen = function(e) 
         {
@@ -10,10 +13,37 @@ fetch('/port')
         }
         socket.onmessage = (event) =>
         {
+            console.log(event.data);
             if(typeof event.data === 'string')
             {
-                console.log(event.data);
+                gameId = event.data;
+                console.log('gameID: ' + gameId);
             }
+            else
+            {
+                mymove = false;
+                const reader = new FileReader();
+
+                reader.onload = function() {
+                    const jsonString = reader.result;
+                    const newMove = JSON.parse(jsonString);
+                    if(newMove.method === 'update')
+                    {
+                        updatePieces(newMove.oldP , newMove.newP);
+                    }
+                    else if(newMove.method === 'move')
+                    {
+                        movePiece(newMove.oldP , newMove.newP);
+                    }
+                    else if(newMove.method === 'capture')
+                    {
+                        capture(newMove.newP);
+                    }
+                }
+                reader.readAsText(event.data);
+            }
+            
+            
         }
     });
 
@@ -170,9 +200,18 @@ async function movement(activePiece, squareId) {
 function updatePieces(oldPosition, newPosition) {
     delete pieces[oldPosition.column + oldPosition.row];
     pieces[newPosition] = activePiece;
+    if(mymove)
+    {
+        let move = new ChessMove('update', oldPosition , newPosition);
+        let jsonString = JSON.stringify(move);
+        socket.send(jsonString);
+    }
+    
 }
 
+
 function movePiece(oldPosition, newPosition) {
+    
     const fromSquare = document.getElementById(oldPosition.column + oldPosition.row);
     const toSquare = document.getElementById(newPosition);
 
@@ -182,7 +221,19 @@ function movePiece(oldPosition, newPosition) {
             toSquare.appendChild(pieceDiv);
         }
     }
+    if(mymove)
+    {
+        let move = new ChessMove('move', oldPosition , newPosition);
+        let jsonString = JSON.stringify(move);
+        socket.send(jsonString);
+    }
+    else
+    {
+        mymove = true;
+    }
+    
 }
+
 function comparePositions(pos1, pos2) {
     return pos1.row === pos2.row && pos1.column === pos2.column;
 }
@@ -219,7 +270,18 @@ async function capture(newPosition) {
     if (pieceDiv) {
         pieceDiv.remove();
     }
+    if(mymove)
+    {
+        let move = new ChessMove('capture', null , newPosition);
+        let jsonString = JSON.stringify(move);
+        socket.send(jsonString);
+    }
+    else{
+        mymove = true;
+    }
+    
 }
+
 
 let alteredDivs = [];
 async function showMoves(piece) {
@@ -301,3 +363,12 @@ function addEventListeners() {
 }
 
 addEventListeners();
+
+
+class ChessMove {
+    constructor(meth , op , np) {
+        this.method = meth;
+        this.oldP = op;
+        this.newP = np;
+        };
+    }

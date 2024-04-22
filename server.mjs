@@ -181,7 +181,7 @@ wss.on('connection', function connection(ws) {
         game.players.push(ws);
         opengames.push(game);
         allgames.push(game);
-        ws.send('GID: ' + game.gameId)
+        ws.send(game.gameId);
     }
 
 
@@ -191,7 +191,15 @@ wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         
         //send move to other opponent client
-        allgames.findOne(gameId)
+        const currGame = allgames.find(game => game.players[0] === ws || game.players[1] === ws);
+        if(currGame.players[0] === ws)
+        {
+            currGame.players[1].send(message);
+        }
+        else
+        {
+            currGame.players[0].send(message);
+        }
     });
 
   
