@@ -111,10 +111,6 @@ async function squareClick(event) {
         moves = activePiece.getMoves();
         if (hasPiece) 
         {
-            if (activePiece.getColor() === pieces[squareId].getColor()) // MAYBE COME BACK TO THIS
-            {
-                activePiece = pieces[squareId];
-            }
             for (let move of moves) 
             {
                 let moveString = move.column + move.row.toString();
@@ -155,7 +151,9 @@ async function squareClick(event) {
     else {
         if (hasPiece) {
             activePiece = pieces[squareId];
-            showMoves(activePiece);
+            if (activePiece) {
+                showMoves(activePiece);
+            }
             color = square.classList.item(1);
             var removedClass = classesArray.splice(1, 1);
             classesArray.splice(1, 0, "bg-yellow-200");
