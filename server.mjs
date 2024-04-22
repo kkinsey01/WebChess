@@ -171,7 +171,7 @@ console.log('server sock up');
 wss.on('connection', function connection(ws) {
     if(opengames.length > 0)
     {
-        opengames[0].players[1] = ws;
+        allgames[0].players[1] = ws;
         ws.send(opengames[0].gameId);
         opengames.shift();
     }

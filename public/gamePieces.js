@@ -290,7 +290,6 @@ class Rook extends Piece {
         for (let charCode = column.charCodeAt(0) - 1; charCode >= 97; charCode--) {
             moves.push({ row: row, column: String.fromCharCode(charCode) });
         }
-        console.log(moves);
         return moves;
     }
 }
@@ -334,13 +333,45 @@ class Queen extends Piece {
     constructor(chessboard, color, row, column) 
     {
         super('Queen', color, row, column, chessboard);
-        this.rook = new Rook(chessboard, color, row, column);
-        this.bishop = new Bishop(chessboard, color, row, column);
     }
     getMoves() {
-        let rookMoves = this.rook.getMoves();
-        let bishopMoves = this.bishop.getMoves();
-        let moves = [...rookMoves, ...bishopMoves];
+        let moves = [];
+        let column = this.position.column.charCodeAt(0);
+        let row = this.position.row;
+
+        // Up-right diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row + i, column: String.fromCharCode(column + i) });
+        }
+
+        // Up-left diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row + i, column: String.fromCharCode(column - i) });
+        }
+
+        // Down-right diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row - i, column: String.fromCharCode(column + i) });
+        }
+
+        // Down-left diagonal
+        for (let i = 1; i <= 8; i++) {
+            moves.push({ row: row - i, column: String.fromCharCode(column - i) });
+        }
+
+        column = this.position.column;
+        for (let i = row + 1; i <= 8; i++) {
+            moves.push({ row: i, column: column });
+        }
+        for (let i = row - 1; i >= 1; i--) {
+            moves.push({ row: i, column: column });
+        }
+        for (let charCode = column.charCodeAt(0) + 1; charCode <= 104; charCode++) {
+            moves.push({ row: row, column: String.fromCharCode(charCode) });
+        }
+        for (let charCode = column.charCodeAt(0) - 1; charCode >= 97; charCode--) {
+            moves.push({ row: row, column: String.fromCharCode(charCode) });
+        }
         return moves;
     }
 }
