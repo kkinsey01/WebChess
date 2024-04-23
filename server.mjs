@@ -168,6 +168,7 @@ const wss = new WebSocketServer({server});
 console.log('server sock up');
 
 let whiteTurn = true;
+let move = 0;
 
 // WebSocket connection handling
 wss.on('connection', function connection(ws) {
@@ -193,7 +194,12 @@ wss.on('connection', function connection(ws) {
     // Handle incoming moves from client
     ws.on('message', function incoming(message) {
         
-        whiteTurn = !whiteTurn;
+        let messageJson = JSON.parse(message);
+        if (messageJson.method !== 'capture')
+        {
+            whiteTurn = !whiteTurn;
+        }
+        console.log('White turn: ', whiteTurn, ' move ', move++);
         //send move to other opponent client
         const currGame = allgames.find(game => game.players[0] === ws || game.players[1] === ws);
         if(currGame.players[0] === ws)
