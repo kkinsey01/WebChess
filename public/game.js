@@ -83,6 +83,7 @@ fetch('/port')
     });
 
 function flipBoard(){
+    //board
     const boardElement = document.getElementById('board');
     const squaresToFlip = Array.from(document.getElementById('board').children);
     console.log(squaresToFlip);
@@ -91,6 +92,15 @@ function flipBoard(){
     for(let i = 0; i < squaresToFlip.length; i++){
         boardElement.append(squaresToFlip[i]);
     }
+    //clocks
+    const blackclock = document.getElementById('blackTimerContainer');
+    const whiteclock = document.getElementById('whiteTimerContainer');
+    blackclock.remove();
+    whiteclock.remove();
+    document.body.prepend(whiteclock);
+    document.body.append(blackclock);
+
+
 }
     
 
