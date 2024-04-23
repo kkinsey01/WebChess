@@ -172,7 +172,7 @@ wss.on('connection', function connection(ws) {
     if(opengames.length > 0)
     {
         allgames[0].players[1] = ws;
-        ws.send(opengames[0].gameId);
+        ws.send(opengames[0].gameId + " black");
         opengames.shift();
         setInterval(updateTimes, 1000);
     }
@@ -182,7 +182,7 @@ wss.on('connection', function connection(ws) {
         game.players.push(ws);
         opengames.push(game);
         allgames.push(game);
-        ws.send(game.gameId);
+        ws.send(game.gameId + " white");
     }
 
 

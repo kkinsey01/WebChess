@@ -1,6 +1,10 @@
-let gameId = 0;
+let gameId = 0;//wait for server to assign
 let socket;
-let mymove = true;
+let mymove = true; //if the move being executed origionated from input or message from server
+let myturn = false; //if we are aloud to initiate a move
+let mycolor = "gray"; //wait for server to assign color with first message
+
+
 fetch('/port')
     .then(response => response.json())
     .then(data => {
@@ -13,53 +17,64 @@ fetch('/port')
         }
         socket.onmessage = (event) =>
         {
-            console.log('Recieved: ', event.data);
-            console.log('Data type: ', typeof event.data);
+            // console.log('Recieved: ', event.data);
+            // console.log('Data type: ', typeof event.data);
             if(typeof event.data === 'string')
             {
-                gameId = event.data;
-                console.log('gameID: ' + gameId);
                 try {
                     let timerData = JSON.parse(event.data);
                     if (timerData) {
-                        console.log('In the if');
+                        // console.log('In the if');
                         if (timerData.color === 'whiteTimerUpdate') {
-                            console.log('Updating white timer');
+                            // console.log('Updating white timer');
                             whiteTimerUpdate(timerData.time);
                         }
                         else {
-                            console.log('Updating black timer');
+                            // console.log('Updating black timer');
                             blackTimerUpdate(timerData.time);
                         }
                     }
                 }
                 catch (err) {
                     console.log('Error parsing JSON', err);
-                }
+                    //not timer data, must be initial message w/ GID and color
+                    const GameidPlusColor = event.data.split(" ");
+                    gameId = GameidPlusColor[0];
+                    mycolor = GameidPlusColor[1];
+                    if(mycolor === "white")
+                    {
+                        myturn = true;
+                    }
+                    console.log('gameID: ' + gameId + 'my color: ' + mycolor);
+
+                }  
             }
             else
             {
-                mymove = false;
+                mymove = false; //tells methods not to send message
                 const reader = new FileReader();
 
                 reader.onload = function() {
                     const jsonString = reader.result;
                     const newMove = JSON.parse(jsonString);
-                    if(newMove.method === 'update')
+                    console.log(newMove.position);
+                    const refSquare = (newMove.position.column + newMove.position.row.toString());
+                    console.log(refSquare);
+ 
+                    activePiece = pieces[refSquare];
+                    console.log(activePiece);
+                    if(newMove.method === 'move')
                     {
-                        updatePieces(newMove.oldP , newMove.newP);
-                    }
-                    else if(newMove.method === 'move')
-                    {
-                        movePiece(newMove.oldP , newMove.newP);
+                        moveFromMessageHelper(activePiece , newMove.newP)
                     }
                     else if(newMove.method === 'capture')
                     {
                         capture(newMove.newP);
+                        moveFromMessageHelper(activePiece , newMove.newP)
                     }
                 }
                 reader.readAsText(event.data);
-            }
+        }
             
             
         }
@@ -134,6 +149,11 @@ async function squareClick(event) {
     var classesArray = Array.from(classes);
     var moves;
     if (activePiece) {
+        if(!myturn){       
+            console.log("not my turn....cant move");
+            activePiece = null;
+            return;
+        }
         moves = activePiece.getMoves();
         if (hasPiece) 
         {
@@ -151,7 +171,7 @@ async function squareClick(event) {
         console.log(activePiece.getType() + " all moves: ", activePiece.getMoves());
         await movement(activePiece, squareId);
         removeShowMoves();
-        console.log(chessboard.kings);
+        // console.log(chessboard.kings);
         if (activePiece.getColor() === 'white')
         {
             if (chessboard.kings.black.isChecked()) 
@@ -172,13 +192,17 @@ async function squareClick(event) {
         classesArray.splice(1, 1);
         classesArray.splice(1, 0, color);
         lastSquare.className = classesArray.join(" ");
-        console.log(square.classList);
+        // console.log(square.classList);
     }
     else {
         if (hasPiece) {
+            //cant make opposite color active piece, can never move them, so return
+            if(pieces[squareId].color !== mycolor){
+                return;
+            }
             activePiece = pieces[squareId];
-            if (activePiece) {
-                showMoves(activePiece);
+            if (activePiece && myturn) {
+                showMoves(activePiece); //only show moves if my turn
             }
             color = square.classList.item(1);
             var removedClass = classesArray.splice(1, 1);
@@ -191,6 +215,29 @@ async function squareClick(event) {
             activePiece = null;
         }
     }     
+}
+
+
+async function moveFromMessageHelper(actPiece, sqId){
+    activePiece = actPiece;
+    squareId = sqId;
+    await movement(activePiece, squareId);
+    removeShowMoves();
+    // console.log(chessboard.kings);
+    if (activePiece.getColor() === 'white')
+    {
+        if (chessboard.kings.black.isChecked()) 
+        {
+            alert('Black King is in check!');
+        }
+    }
+    else {
+        if (chessboard.kings.white.isChecked())
+        {
+            alert('White King is in check!');
+        }
+    }
+    activePiece = null;
 }
 
 async function movement(activePiece, squareId) {
@@ -206,9 +253,15 @@ async function movement(activePiece, squareId) {
             const obstacles = checkObstacles(oldPosition, updatedPosition, activePiece);
             if (obstacles.length === 0) {
                 console.log('No obstacles');
+                if(mymove){
+                    let move = new ChessMove('move', null , squareId, oldPosition);
+                    let jsonString = JSON.stringify(move);
+                    socket.send(jsonString);
+                }
                 // Move the piece on the board
                 updatePieces(oldPosition, squareId);
                 movePiece(oldPosition, squareId);
+                
             } else {
                 console.log(`Move failed due to obstacles.`);
             }
@@ -217,19 +270,13 @@ async function movement(activePiece, squareId) {
         } else {
             console.log(`Move failed. Positions are equal.`);
         }
-        activePiece = null;
-    }
+        
+    }  
 }
 
 function updatePieces(oldPosition, newPosition) {
     delete pieces[oldPosition.column + oldPosition.row];
     pieces[newPosition] = activePiece;
-    if(mymove)
-    {
-        let move = new ChessMove('update', oldPosition , newPosition);
-        let jsonString = JSON.stringify(move);
-        socket.send(jsonString);
-    }
     
 }
 
@@ -245,15 +292,14 @@ function movePiece(oldPosition, newPosition) {
             toSquare.appendChild(pieceDiv);
         }
     }
-    if(mymove)
+    if(mymove)//if we made the move --- not a messaged move
     {
-        let move = new ChessMove('move', oldPosition , newPosition);
-        let jsonString = JSON.stringify(move);
-        socket.send(jsonString);
+        myturn = false; // end our turn after move sent
     }
-    else
+    else//messeged move --- opponent made move
     {
-        mymove = true;
+        myturn = true;//start our turn
+        mymove = true;//reset flag ---- mymove set to false when message received
     }
     
 }
@@ -296,12 +342,9 @@ async function capture(newPosition) {
     }
     if(mymove)
     {
-        let move = new ChessMove('capture', null , newPosition);
+        let move = new ChessMove('capture', null , newPosition, activePiece.position);
         let jsonString = JSON.stringify(move);
         socket.send(jsonString);
-    }
-    else{
-        mymove = true;
     }
     
 }
@@ -391,9 +434,10 @@ addEventListeners();
 
 
 class ChessMove {
-    constructor(meth , op , np) {
+    constructor(meth , op , np, pos) {
         this.method = meth;
         this.oldP = op;
         this.newP = np;
+        this.position = pos
         };
     }
