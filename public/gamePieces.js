@@ -110,27 +110,26 @@ class Piece {
                 console.log(targetPiece);
                 if (targetPiece.getColor() !== this.getColor()) {
                     this.setPosition(row, column);
-                    if (color === 'white') 
-                    {
-                        if (this.chessboard.kings.white.isChecked())
-                        {
-                            this.setPosition(oldPositionRow, oldPositionCol);
-                            return false;
-                        }
-                    }
-                    else {
-                        if (this.chessboard.kings.black.isChecked())
-                        {
-                            this.setPosition(oldPositionRow, oldPositionCol);
-                            return false;
-                        }
-                    }
                     return true;
                 }
                 return false;
             }
             else {
                 this.setPosition(row, column);
+                if (color === 'white') {
+                    console.log("Attempting to move white piece");
+                    if (this.chessboard.kings.white.isChecked()) {
+                        console.log("King would be in check, reverting move...");
+                        this.setPosition(oldPositionRow, oldPositionCol);
+                        return false;
+                    }
+                }
+                else {
+                    if (this.chessboard.kings.black.isChecked()) {
+                        this.setPosition(oldPositionRow, oldPositionCol);
+                        return false;
+                    }
+                }
                 console.log("Move successful");
             }
         } else {
