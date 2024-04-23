@@ -212,8 +212,8 @@ wss.on('connection', function connection(ws) {
 let whiteTimer = '10:00';
 let blackTimer = '10:00';
 
-let whiteTurn = true;
-let blackTurn = false;
+let whiteTurn = false;
+let blackTurn = true;
 
 function updateTimes() {
     const updatedTime = generateUpdatedTime();
@@ -255,7 +255,7 @@ function generateUpdatedTime() {
             newSeconds = 59;
             newMinutes = newMinutes - 1;
         }
-        blackTimer = `${newMinutes.toString().padEnd(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
+        blackTimer = `${newMinutes.toString().padStart(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
         return blackTimer;
     }
 }
