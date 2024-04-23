@@ -98,27 +98,40 @@ class Piece {
     move(row, column) {
         const moves = this.getMoves();
         const targetMove = { row: row, column: column };
+        const color = this.getColor();
+        const oldPosition = this.getPosition();
 
         const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
         if (isValidMove) {
-            if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
-                const targetPiece = this.chessboard.getPiece(row, column);
-                console.log(targetPiece);
-                if (targetPiece.getColor() !== this.getColor()){
-                    this.setPosition(row, column);
-                    return true;
-                }
-                return false;
+            const targetPiece = this.chessboard.getPiece(row, column);
+            const oldPiece = targetPiece ? { piece: targetPiece, row: row, column: column } : null;
+            this.setPosition(row, column);
+
+            let isInCheck = false;
+            if (color === 'white') {
+                isInCheck = this.chessboard.kings.white.isChecked();
+            } else {
+                isInCheck = this.chessboard.kings.black.isChecked();
             }
-            else {
+
+            this.setPosition(oldPosition.row, oldPosition.column);
+            if (oldPiece) {
+                this.chessboard.placePiece(oldPiece.piece, oldPiece.row, oldPiece.column);
+            }
+
+            if (!isInCheck && (!this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column))) {
                 this.setPosition(row, column);
                 console.log("Move successful");
+                return true;
+            } else {
+                console.log("Move puts king in check or is invalid");
+                return false;
             }
         } else {
             return false;
         }
-        return true;
     }
+
 }
 
 class Pawn extends Piece {
