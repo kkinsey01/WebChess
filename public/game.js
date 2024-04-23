@@ -45,6 +45,9 @@ fetch('/port')
                     {
                         myturn = true;
                     }
+                    else{
+                        flipBoard();
+                    }
                     console.log('gameID: ' + gameId + 'my color: ' + mycolor);
 
                 }  
@@ -78,6 +81,18 @@ fetch('/port')
             
         }
     });
+
+function flipBoard(){
+    const boardElement = document.getElementById('board');
+    const squaresToFlip = Array.from(document.getElementById('board').children);
+    console.log(squaresToFlip);
+    squaresToFlip.reverse();
+    boardElement.innerHTML = '';
+    for(let i = 0; i < squaresToFlip.length; i++){
+        boardElement.append(squaresToFlip[i]);
+    }
+}
+    
 
 function blackTimerUpdate(data) {
     document.getElementById('timerBlack').innerHTML = data;
@@ -196,7 +211,7 @@ async function squareClick(event) {
     else {
         if (hasPiece) {
             //cant make opposite color active piece, can never move them, so return
-            if(pieces[squareId].color !== mycolor){
+            if(pieces[squareId].color !== mycolor || !myturn){
                 return;
             }
             activePiece = pieces[squareId];
