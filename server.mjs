@@ -174,6 +174,7 @@ wss.on('connection', function connection(ws) {
         allgames[0].players[1] = ws;
         ws.send(opengames[0].gameId);
         opengames.shift();
+        setInterval(updateTimes, 1000);
     }
     else
     {
@@ -207,3 +208,54 @@ wss.on('connection', function connection(ws) {
         console.log('Client disconnected');
     });
 });
+
+let whiteTimer = '10:00';
+let blackTimer = '10:00';
+
+let whiteTurn = true;
+let blackTurn = false;
+
+function updateTimes() {
+    const updatedTime = generateUpdatedTime();
+
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            if (whiteTurn) {
+                client.send(JSON.stringify({ color: 'whiteTimerUpdate', time: updatedTime, desc: "updating timer" }));
+            }
+            else {
+                client.send(JSON.stringify({ color: 'blackTimerUpdate', time: updatedTime, desc: "updating timer" }));
+            }
+        }
+    });
+}
+
+function generateUpdatedTime() {
+    if (whiteTurn) 
+    {
+        const [minutes, seconds] = whiteTimer.split(':').map(Number);
+        let newSeconds = seconds - 1;
+        let newMinutes = minutes;
+
+        if (newSeconds < 0)
+        {
+            newSeconds = 59;
+            newMinutes = newMinutes - 1;
+        }
+        whiteTimer = `${newMinutes.toString().padStart(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
+        return whiteTimer;
+    }
+    else {
+        const [minutes, seconds] = blackTimer.split(':').map(Number);
+        let newSeconds = seconds - 1;
+        let newMinutes = minutes;
+
+        if (newSeconds < 0)
+        {
+            newSeconds = 59;
+            newMinutes = newMinutes - 1;
+        }
+        blackTimer = `${newMinutes.toString().padEnd(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
+        return blackTimer;
+    }
+}

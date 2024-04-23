@@ -13,11 +13,29 @@ fetch('/port')
         }
         socket.onmessage = (event) =>
         {
-            console.log(event.data);
+            console.log('Recieved: ', event.data);
+            console.log('Data type: ', typeof event.data);
             if(typeof event.data === 'string')
             {
                 gameId = event.data;
                 console.log('gameID: ' + gameId);
+                try {
+                    let timerData = JSON.parse(event.data);
+                    if (timerData) {
+                        console.log('In the if');
+                        if (timerData.color === 'whiteTimerUpdate') {
+                            console.log('Updating white timer');
+                            whiteTimerUpdate(timerData.time);
+                        }
+                        else {
+                            console.log('Updating black timer');
+                            blackTimerUpdate(timerData.time);
+                        }
+                    }
+                }
+                catch (err) {
+                    console.log('Error parsing JSON', err);
+                }
             }
             else
             {
@@ -46,6 +64,14 @@ fetch('/port')
             
         }
     });
+
+function blackTimerUpdate(data) {
+    document.getElementById('timerBlack').innerHTML = data;
+}
+
+function whiteTimerUpdate(data) {
+    document.getElementById('timerWhite').innerHTML = data;
+}
 
 const chessboard = new Chessboard();
 
@@ -361,6 +387,7 @@ function addEventListeners() {
 }
 
 addEventListeners();
+
 
 
 class ChessMove {
