@@ -95,42 +95,50 @@ class Piece {
     getMoves() {
         return []; 
     }
+    
     move(row, column) {
         const moves = this.getMoves();
         const targetMove = { row: row, column: column };
+        const oldPositionRow = this.getPosition().row;
+        const oldPositionCol = this.getPosition().column;
         const color = this.getColor();
-        const oldPosition = this.getPosition();
 
         const isValidMove = moves.some(move => move.row === targetMove.row && move.column === targetMove.column);
         if (isValidMove) {
-            const targetPiece = this.chessboard.getPiece(row, column);
-            const oldPiece = targetPiece ? { piece: targetPiece, row: row, column: column } : null;
-            this.setPosition(row, column);
-
-            let isInCheck = false;
-            if (color === 'white') {
-                isInCheck = this.chessboard.kings.white.isChecked();
-            } else {
-                isInCheck = this.chessboard.kings.black.isChecked();
+            if (this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column)) {
+                const targetPiece = this.chessboard.getPiece(row, column);
+                console.log(targetPiece);
+                if (targetPiece.getColor() !== this.getColor()) {
+                    this.setPosition(row, column);
+                    if (color === 'white') 
+                    {
+                        if (this.chessboard.kings.white.isChecked())
+                        {
+                            this.setPosition(oldPositionRow, oldPositionCol);
+                            return false;
+                        }
+                    }
+                    else {
+                        if (this.chessboard.kings.black.isChecked())
+                        {
+                            this.setPosition(oldPositionRow, oldPositionCol);
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
             }
-
-            this.setPosition(oldPosition.row, oldPosition.column);
-            if (oldPiece) {
-                this.chessboard.placePiece(oldPiece.piece, oldPiece.row, oldPiece.column);
-            }
-
-            if (!isInCheck && (!this.chessboard.isOccupied(row, column) || !this.chessboard.isValidPosition(row, column))) {
+            else {
                 this.setPosition(row, column);
                 console.log("Move successful");
-                return true;
-            } else {
-                console.log("Move puts king in check or is invalid");
-                return false;
             }
         } else {
             return false;
         }
+        return true;
     }
+
 
 }
 
