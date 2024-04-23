@@ -70,7 +70,6 @@ fetch('/port')
                     else if(newMove.method === 'capture')
                     {
                         capture(newMove.newP);
-                        moveFromMessageHelper(activePiece , newMove.newP)
                     }
                 }
                 reader.readAsText(event.data);

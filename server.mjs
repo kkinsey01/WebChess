@@ -167,6 +167,8 @@ const wss = new WebSocketServer({server});
 
 console.log('server sock up');
 
+let whiteTurn = true;
+
 // WebSocket connection handling
 wss.on('connection', function connection(ws) {
     if(opengames.length > 0)
@@ -191,6 +193,7 @@ wss.on('connection', function connection(ws) {
     // Handle incoming moves from client
     ws.on('message', function incoming(message) {
         
+        whiteTurn = !whiteTurn;
         //send move to other opponent client
         const currGame = allgames.find(game => game.players[0] === ws || game.players[1] === ws);
         if(currGame.players[0] === ws)
@@ -212,8 +215,6 @@ wss.on('connection', function connection(ws) {
 let whiteTimer = '10:00';
 let blackTimer = '10:00';
 
-let whiteTurn = false;
-let blackTurn = true;
 
 function updateTimes() {
     const updatedTime = generateUpdatedTime();
